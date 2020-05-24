@@ -1,0 +1,29 @@
+{
+  "name": "employee-tracker",
+  "version": "1.0.0",
+  "description": "A content management system to allow manager access to employee information.",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WillV1/employee-tracker.git"
+  },
+  "keywords": [
+    "content",
+    "management",
+    "system"
+  ],
+  "author": "William VanHook",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/WillV1/employee-tracker/issues"
+  },
+  "homepage": "https://github.com/WillV1/employee-tracker#readme",
+  "dependencies": {
+    "console.table": "^0.10.0",
+    "inquirer": "^7.1.0",
+    "mysql": "^2.18.1"
+  }
+}
