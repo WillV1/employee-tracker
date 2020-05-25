@@ -34,32 +34,35 @@ function startMenu() {
             name: "searchMenu",
             type: "list",
             message: "What would you like to do?",
-            choices: ["View all employees", "View all employees by department", "View all employees by manager", "Add an employee",
-                "Add a department", "Remove an employee", "Update employee role", "Exit"]
+            choices: ["View all Employees", "View all Employees by Department", "View all Employees by Role", "Add an Employee",
+                "Add a Department", "Add a Role", "Remove an Employee", "Update Employee Role", "Exit"]
         })
         .then(function (answer) {
             // based on their answer, either call the appropriate functions
 
             switch (answer.searchMenu) {
-                case "View all employees":
+                case "View all Employees":
                     viewEmployee();
                     break;
-                case "View all employees by department":
+                case "View all Employees by Department":
                     viewDepartment();
                     break;
-                case "View all employees by manager":
-                    viewManager();
+                case "View all Employees by Role":
+                    viewRole();
                     break;
-                case "Add an employee":
+                case "Add an Employee":
                     addEmployee();
                     break;
-                case "Add a department":
+                case "Add a Department":
                     addDepartment();
                     break;
-                case "Remove an employee":
+                case "Add a Role":
+                    addRole();
+                    break;
+                case "Remove an Employee":
                     removeEmployee();
                     break;
-                case "Update employee role":
+                case "Update Employee Role":
                     updateRole();
                     break;
                 case "Exit":
@@ -107,21 +110,23 @@ function viewDepartment() {
         });
 }
 
-// function viewManager() {
-//     console.log("Deleting all strawberry icecream...\n");
-//     connection.query(
-//       "DELETE FROM products WHERE ?",
-//       {
-//         flavor: "strawberry"
-//       },
-//       function(err, res) {
-//         if (err) throw err;
-//         console.log(res.affectedRows + " products deleted!\n");
-//         // Call readProducts AFTER the DELETE completes
-//         readProducts();
-//       }
-//     );
-//   }
+function viewRole() {
+    inquirer
+        .prompt({
+            name: "role",
+            type: "input",
+            message: "Which role do you want to search?"
+        })
+        .then(function (answer) {
+            var query = "SELECT first_name, last_name, manager_id FROM employee WHERE ?";
+            connection.query(query, { department: answer.department }, function (err, res) {
+                for (var i = 0; i < res.length; i++) {
+                    console.table(res[i]);
+                }
+                startMenu();
+            });
+        });
+  }
 
 function addEmployee() {
     inquirer
@@ -165,6 +170,66 @@ function addEmployee() {
         });
 }
 
+function addDepartment() {
+    inquirer
+        .prompt({
+            name: "departmentName",
+            type: "input",
+            message: "What is the name of the new department?"
+            })
+
+
+        .then(function (answer) {
+            // when finished prompting, insert a new item into the db with that info
+            connection.query(
+                "INSERT INTO deparment SET ?",
+                {
+                    name: answer.departmentName,
+                },
+                function (err) {
+                    if (err) throw err;
+                    startMenu();
+                }
+            );
+        });
+}
+
+function addRole() {
+    inquirer
+        .prompt({
+            name: "name",
+            type: "input",
+            message: "What is the name of the role?"
+            },
+            {
+                name: "salary",
+                type: "input",
+                message: "What is the role's salary?"
+            },
+            {
+                name: "department",
+                type: "input",
+                message: "Which department to add the role?"
+            })
+
+
+        .then(function (answer) {
+            // when finished prompting, insert a new item into the db with that info
+            connection.query(
+                "INSERT INTO role SET ?",
+                {
+                    title: answer.name,
+                    salary: answer.salary,
+                    department_id: answer.department,
+                },
+                function (err) {
+                    if (err) throw err;
+                    startMenu();
+                }
+            );
+        });
+}
+
 // function removeEmployee() {
 //     console.log("Deleting all strawberry icecream...\n");
 //     connection.query(
@@ -181,3 +246,37 @@ function addEmployee() {
 //     );
 //   }
 
+// function updateRole() {
+
+//     inquirer
+//         .prompt({
+//             name: "firstName",
+//             type: "input",
+//             message: "What is the employee's first name?"
+//             },
+//             {
+//                 name: "manager",
+//                 type: "input",
+//                 message: "Who is the employee's manager?"
+//             })
+    
+//     var query = connection.query(
+//       "UPDATE products SET ? WHERE ?",
+//       [
+//         {
+//           quantity: 100
+//         },
+//         {
+//           flavor: "Rocky Road"
+//         }
+//       ],
+//       function(err, res) {
+//         if (err) throw err;
+//         console.log(res.affectedRows + " products updated!\n");
+//         // Call deleteProduct AFTER the UPDATE completes
+//         connection.end();
+//       }
+      
+//     );
+  
+//   }
