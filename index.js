@@ -82,15 +82,16 @@ function viewEmployee() {
 
     let query = "SELECT *";
     query += "FROM ((employee INNER JOIN role ON employee.role_id = role.id)";
-    query += "INNER JOIN department ON role.department_id = department.id);"
+    query += "INNER JOIN department ON role.department_id = department.id)";
 
     connection.query(query, function (err, res) {
         if (err) throw err;
         console.table(res);
-
+        startMenu();
     });
-    startMenu;
+
 }
+
 
 function viewDepartment() {
     inquirer
@@ -100,7 +101,10 @@ function viewDepartment() {
             message: "Which department do you want to search?"
         })
         .then(function (answer) {
-            var query = "SELECT first_name, last_name, manager_id FROM employee WHERE ?";
+            let query = "SELECT *";
+            query += "FROM ((department INNER JOIN role ON department.id = role.department_id)";
+            query += "INNER JOIN employee ON role.id = employee.role_id)";
+
             connection.query(query, { department: answer.department }, function (err, res) {
                 for (var i = 0; i < res.length; i++) {
                     console.table(res[i]);
@@ -118,22 +122,22 @@ function viewRole() {
             message: "Which role do you want to search?"
         })
         .then(function (answer) {
-            var query = "SELECT first_name, last_name, manager_id FROM employee WHERE ?";
-            connection.query(query, { department: answer.department }, function (err, res) {
+            var query = "SELECT first_name, last_name, department_id, manager_id FROM employee WHERE ?";
+            connection.query(query, { role: answer.role }, function (err, res) {
                 for (var i = 0; i < res.length; i++) {
                     console.table(res[i]);
                 }
                 startMenu();
             });
         });
-  }
+}
 
 function addEmployee() {
     inquirer
         .prompt({
-            name: "firstName",
-            type: "input",
-            message: "What is the employee's first name?"
+                name: "firstName",
+                type: "input",
+                message: "What is the employee's first name?"
             },
             {
                 name: "lastName",
@@ -176,13 +180,13 @@ function addDepartment() {
             name: "departmentName",
             type: "input",
             message: "What is the name of the new department?"
-            })
+        })
 
 
         .then(function (answer) {
             // when finished prompting, insert a new item into the db with that info
             connection.query(
-                "INSERT INTO deparment SET ?",
+                "INSERT INTO department SET ?",
                 {
                     name: answer.departmentName,
                 },
@@ -200,7 +204,7 @@ function addRole() {
             name: "name",
             type: "input",
             message: "What is the name of the role?"
-            },
+        },
             {
                 name: "salary",
                 type: "input",
@@ -230,36 +234,45 @@ function addRole() {
         });
 }
 
-// function removeEmployee() {
-//     console.log("Deleting all strawberry icecream...\n");
-//     connection.query(
-//       "DELETE FROM products WHERE ?",
-//       {
-//         flavor: "strawberry"
-//       },
-//       function(err, res) {
-//         if (err) throw err;
-//         console.log(res.affectedRows + " products deleted!\n");
-//         // Call readProducts AFTER the DELETE completes
-//         readProducts();
-//       }
-//     );
-//   }
+function removeEmployee() {
+
+    inquirer
+        .prompt({
+            name: "remove",
+            type: "list",
+            message: "Which employee would you like to remove?",
+            choices: []
+        })
+
+    connection.query(
+        "DELETE FROM products WHERE ?",
+        {
+            flavor: "strawberry"
+        },
+        function (err, res) {
+            if (err) throw err;
+            console.log(res.affectedRows + " products deleted!\n");
+            // Call readProducts AFTER the DELETE completes
+            readProducts();
+        }
+    );
+}
 
 // function updateRole() {
 
 //     inquirer
 //         .prompt({
-//             name: "firstName",
+//             name: "name",
 //             type: "input",
-//             message: "What is the employee's first name?"
+//             message: "Which employee would you like to update?",
+//             choices: []
 //             },
 //             {
-//                 name: "manager",
+//                 name: "role",
 //                 type: "input",
-//                 message: "Who is the employee's manager?"
+//                 message: "What is the employee's new role?"
 //             })
-    
+
 //     var query = connection.query(
 //       "UPDATE products SET ? WHERE ?",
 //       [
@@ -276,7 +289,7 @@ function addRole() {
 //         // Call deleteProduct AFTER the UPDATE completes
 //         connection.end();
 //       }
-      
+
 //     );
-  
+
 //   }
