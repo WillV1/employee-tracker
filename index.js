@@ -91,6 +91,7 @@ function viewEmployee() {
 
 }
 
+// How to get for loop to work?
 
 function viewDepartment() {
     inquirer
@@ -114,6 +115,8 @@ function viewDepartment() {
         });
 }
 
+//How to get for loop to work?
+
 function viewRole() {
     inquirer
         .prompt({
@@ -132,6 +135,7 @@ function viewRole() {
         });
 }
 
+//How to add manager name/id?
 function addEmployee() {
     inquirer
         .prompt([
@@ -159,7 +163,7 @@ function addEmployee() {
 
 
         .then(function (answer) {
-            // when finished prompting, insert a new item into the db with that info
+            
             connection.query(
                 "INSERT INTO employee SET ?",
                 {
@@ -186,7 +190,7 @@ function addDepartment() {
 
 
         .then(function (answer) {
-            // when finished prompting, insert a new item into the db with that info
+           
             connection.query(
                 "INSERT INTO department SET ?",
                 {
@@ -222,7 +226,7 @@ function addRole() {
 
 
         .then(function (answer) {
-            // when finished prompting, insert a new item into the db with that info
+            
             connection.query(
                 "INSERT INTO role SET ?",
                 {
@@ -238,8 +242,9 @@ function addRole() {
         });
 }
 
+
 function removeEmployee() {
-    connection.query("SELECT * FROM employee", function (err, results) {
+    connection.query("SELECT first_name, last_name FROM employee", function (err, res) {
         if (err) throw err;
         inquirer
             .prompt({
@@ -248,15 +253,15 @@ function removeEmployee() {
                 message: "Which employee would you like to remove?",
                 choices: function () {
                     var employeeArray = [];
-                    for (var i = 0; i < results.length; i++) {
-                        employeeArray.push(results[i].name);
+                    for (var i = 0; i < res.length; i++) {
+                        employeeArray.push(res[i].first_name + " " + res[i].last_name);
                     }
                     return employeeArray;
                 }
             })
 
             .then(function (answer) {
-                // when finished prompting, insert a new item into the db with that info
+                
                 connection.query(
                     "DELETE FROM employee WHERE ?",
                     {
@@ -272,7 +277,7 @@ function removeEmployee() {
 }
 
 function updateRole() {
-    connection.query("SELECT * FROM employee", function (err, results) {
+    connection.query("SELECT first_name, last_name FROM employee", function (err, results) {
         if (err) throw err;
         inquirer
             .prompt({
@@ -281,8 +286,8 @@ function updateRole() {
                 message: "Which employee would you like to update?",
                 choices: function () {
                     var employeeArray = [];
-                    for (var i = 0; i < results.length; i++) {
-                        employeeArray.push(results[i].name);
+                    for (var i = 0; i < res.length; i++) {
+                        employeeArray.push(res[i].first_name + " " + res[i].last_name);
                     }
                     return employeeArray;
                 }
