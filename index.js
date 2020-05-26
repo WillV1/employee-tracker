@@ -3,7 +3,7 @@ const inquirer = require("inquirer");
 const cTable = require('console.table');
 // const viewEmployees = require('./viewquery.js')
 
-
+//Is there a way to modulize all these functions?
 
 // create the connection information for the sql database
 let connection = mysql.createConnection({
@@ -35,10 +35,10 @@ function startMenu() {
             type: "list",
             message: "What would you like to do?",
             choices: ["View all Employees", "View all Employees by Department", "View all Employees by Role", "Add an Employee",
-                "Add a Department", "Add a Role", "Remove an Employee", "Update Employee Role", "Exit"]
+                "Add a Department", "Add a Role", "Remove an Employee", "Remove a Role", "Remove a Department", "Update Employee Role", "Exit"]
         })
         .then(function (answer) {
-            // based on their answer, either call the appropriate functions
+            // based on their answer, call the appropriate function
 
             switch (answer.searchMenu) {
                 case "View all Employees":
@@ -62,14 +62,18 @@ function startMenu() {
                 case "Remove an Employee":
                     removeEmployee();
                     break;
+                case "Remove a Role":
+                    removeRole();
+                    break;
+                case "Remove a Department":
+                    removeDepartment();
+                    break;
                 case "Update Employee Role":
                     updateRole();
                     break;
                 case "Exit":
                     console.log("Goodbye!");
-                    break;
-                default:
-                    console.log("Please make a selection");
+                    connection.end();
                     break;
             }
         });
@@ -91,49 +95,54 @@ function viewEmployee() {
 
 }
 
-// How to get for loop to work?
+//How to get table to work?
 
 function viewDepartment() {
     inquirer
-        .prompt({
-            name: "department",
-            type: "input",
-            message: "Which department do you want to search?"
-        })
-        .then(function (answer) {
-            let query = `SELECT employee.id AS id, employee.first_name AS first_name, employee.last_name AS last_name, 
-            role.title AS title, department.name AS department, role.salary AS salary FROM employee JOIN role 
-            ON employee.role_id = role.id JOIN department ON role.department_id = department.id`;
+      .prompt({
+        name: "department",
+        type: "input",
+        message: "What department do you want to search by?"
+      })
+      .then(function(answer) {
 
-            connection.query(query, { department_name: answer.department }, function (err, res) {
-                for (var i = 0; i < res.length; i++) {
-                    if (err) throw err;
-                    console.table(res[i]);
-                }
-                startMenu();
-            });
+        let query = `SELECT employee.first_name AS first_name, employee.last_name AS last_name, 
+    role.title AS title FROM employee JOIN role 
+    ON employee.role_id = role.id JOIN department ON role.department_id = department.id WHERE ?`;
+
+        connection.query(query, { name: answer.department }, function(err, res) {
+          if (err) throw err;
+          for (var i = 0; i < res.length; i++) {
+            console.table(res[i].first_name + " " + res[i].last_name + " " + res[i].title);
+          }
+          startMenu();
         });
-}
+      });
+  }
 
-//How to get for loop to work?
-
+  //How to get table feature to work?
 function viewRole() {
     inquirer
-        .prompt({
-            name: "role",
-            type: "input",
-            message: "Which role do you want to search?"
-        })
-        .then(function (answer) {
-            var query = "SELECT first_name, last_name, department_id, manager_id FROM employee WHERE ?";
-            connection.query(query, { role: answer.role }, function (err, res) {
-                for (var i = 0; i < res.length; i++) {
-                    console.table(res[i]);
-                }
-                startMenu();
-            });
+      .prompt({
+        name: "role",
+        type: "input",
+        message: "What role do you want to search by?"
+      })
+      .then(function(answer) {
+
+        var query = `SELECT employee.id AS id, employee.first_name AS first_name, employee.last_name AS last_name, 
+        role.title AS title, role.salary AS salary FROM employee JOIN role 
+        ON employee.role_id = role.id WHERE ?`;
+
+        connection.query(query, { title: answer.role }, function(err, res) {
+          if (err) throw err;
+          for (var i = 0; i < res.length; i++) {
+            console.table([res[i].id + " " + res[i].first_name + " " + res[i].last_name + " " + res[i].title + " " + res[i].salary]);
+          }
+          startMenu();
         });
-}
+      });
+  }
 
 //How to add manager name/id?
 function addEmployee() {
@@ -244,7 +253,7 @@ function addRole() {
 
 
 function removeEmployee() {
-    connection.query("SELECT first_name, last_name FROM employee", function (err, res) {
+    connection.query("SELECT first_name, last_name, role_id, manager_id FROM employee", function (err, res) {
         if (err) throw err;
         inquirer
             .prompt({
@@ -254,7 +263,7 @@ function removeEmployee() {
                 choices: function () {
                     var employeeArray = [];
                     for (var i = 0; i < res.length; i++) {
-                        employeeArray.push(res[i].first_name + " " + res[i].last_name);
+                        employeeArray.push(res[i].first_name + " " + res[i].last_name + " " + res[i].role_id + " " + res[i].manager_id);
                     }
                     return employeeArray;
                 }
@@ -266,6 +275,72 @@ function removeEmployee() {
                     "DELETE FROM employee WHERE ?",
                     {
                         first_name, last_name, role_id, manager_id: answer.remove
+                    },
+                    function (err) {
+                        if (err) throw err;
+                        startMenu();
+                    }
+                );
+            });
+    });
+}
+
+function removeRole() {
+    connection.query("SELECT title, salary, department_id FROM role", function (err, res) {
+        if (err) throw err;
+        inquirer
+            .prompt({
+                name: "removeRole",
+                type: "list",
+                message: "Which role would you like to remove?",
+                choices: function () {
+                    var roleArray = [];
+                    for (var i = 0; i < res.length; i++) {
+                        roleArray.push(res[i].title + " " + res[i].salary + " " + res[i].department_id);
+                    }
+                    return roleArray;
+                }
+            })
+
+            .then(function (answer) {
+                
+                connection.query(
+                    "DELETE FROM role WHERE ?",
+                    {
+                        title, salary, department_id: answer.removeRole
+                    },
+                    function (err) {
+                        if (err) throw err;
+                        startMenu();
+                    }
+                );
+            });
+    });
+}
+
+function removeDepartment() {
+    connection.query("SELECT name FROM department", function (err, res) {
+        if (err) throw err;
+        inquirer
+            .prompt({
+                name: "removeDepartment",
+                type: "list",
+                message: "Which department would you like to remove?",
+                choices: function () {
+                    var departmentArray = [];
+                    for (var i = 0; i < res.length; i++) {
+                        departmentArray.push(res[i].name);
+                    }
+                    return departmentArray;
+                }
+            })
+
+            .then(function (answer) {
+                
+                connection.query(
+                    "DELETE FROM department WHERE ?",
+                    {
+                        name: answer.removeDepartment
                     },
                     function (err) {
                         if (err) throw err;
