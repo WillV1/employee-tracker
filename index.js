@@ -81,14 +81,13 @@ function startMenu() {
         });
 }
 
-// //How to change manager_id to manager name?
 
 function viewEmployee() {
 
     let query = `SELECT employee.id AS id, employee.first_name AS first_name, employee.last_name AS last_name, 
-    role.title AS title, department.name AS department, role.salary AS salary, CONCAT('first_name' , 'last_name') 
+    role.title AS title, department.name AS department, role.salary AS salary, CONCAT(manager.first_name , " ", manager.last_name) 
     AS manager FROM employee JOIN role ON employee.role_id = role.id JOIN department 
-    ON role.department_id = department.id LEFT JOIN employee manager ON manager.id = employee.manager_id` 
+    ON role.department_id = department.id LEFT JOIN employee manager ON manager.id = employee.manager_id`; 
 
     connection.query(query, function (err, res) {
         if (err) throw err;
