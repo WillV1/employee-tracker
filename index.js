@@ -87,7 +87,7 @@ function viewEmployee() {
     let query = `SELECT employee.id AS id, employee.first_name AS first_name, employee.last_name AS last_name, 
     role.title AS title, department.name AS department, role.salary AS salary, CONCAT(manager.first_name , " ", manager.last_name) 
     AS manager FROM employee JOIN role ON employee.role_id = role.id JOIN department 
-    ON role.department_id = department.id LEFT JOIN employee manager ON manager.id = employee.manager_id`; 
+    ON role.department_id = department.id LEFT JOIN employee manager ON manager.id = employee.manager_id`;
 
     connection.query(query, function (err, res) {
         if (err) throw err;
@@ -101,91 +101,91 @@ function viewEmployee() {
 
 function viewDepartment() {
     inquirer
-      .prompt({
-        name: "department",
-        type: "input",
-        message: "What department do you want to search by?"
-      })
-      .then(function(answer) {
+        .prompt({
+            name: "department",
+            type: "input",
+            message: "What department do you want to search by?"
+        })
+        .then(function (answer) {
 
-        let query = `SELECT employee.first_name AS first_name, employee.last_name AS last_name, 
+            let query = `SELECT employee.first_name AS first_name, employee.last_name AS last_name, 
     role.title AS title FROM employee JOIN role 
     ON employee.role_id = role.id JOIN department ON role.department_id = department.id WHERE ?`;
 
-        connection.query(query, { name: answer.department }, function(err, res) {
-          if (err) throw err;
-          for (var i = 0; i < res.length; i++) {
-            console.table(res[i].first_name + " " + res[i].last_name + " " + res[i].title);
-          }
-          startMenu();
+            connection.query(query, { name: answer.department }, function (err, res) {
+                if (err) throw err;
+                for (var i = 0; i < res.length; i++) {
+                    console.table(res[i].first_name + " " + res[i].last_name + " " + res[i].title);
+                }
+                startMenu();
+            });
         });
-      });
-  }
+}
 
 //   //How to get table feature to work?
 function viewRole() {
     inquirer
-      .prompt({
-        name: "role",
-        type: "input",
-        message: "What role do you want to search by?"
-      })
-      .then(function(answer) {
+        .prompt({
+            name: "role",
+            type: "input",
+            message: "What role do you want to search by?"
+        })
+        .then(function (answer) {
 
-        var query = `SELECT employee.id AS id, employee.first_name AS first_name, employee.last_name AS last_name, 
+            var query = `SELECT employee.id AS id, employee.first_name AS first_name, employee.last_name AS last_name, 
         role.title AS title, role.salary AS salary FROM employee JOIN role 
         ON employee.role_id = role.id WHERE ?`;
 
-        connection.query(query, { title: answer.role }, function(err, res) {
-          if (err) throw err;
-          for (var i = 0; i < res.length; i++) {
-            console.table([res[i].id + " " + res[i].first_name + " " + res[i].last_name + " " + res[i].title + " " + res[i].salary]);
-          }
-          startMenu();
+            connection.query(query, { title: answer.role }, function (err, res) {
+                if (err) throw err;
+                for (var i = 0; i < res.length; i++) {
+                    console.table([res[i].id + " " + res[i].first_name + " " + res[i].last_name + " " + res[i].title + " " + res[i].salary]);
+                }
+                startMenu();
+            });
         });
-      });
-  }
+}
 
-function addEmployee(){
-inquirer
-      .prompt([
-          {
-          name: "firstName",
-          type: "input",
-          message: "What is the employee's first name?"
-      },
-          {
-              name: "lastName",
-              type: "input",
-              message: "What is the employee's last name?"
-          },
-          {
-              name: "role",
-              type: "input",
-              message: "What is the employee's role?"
-          },
-          {
-              name: "manager",
-              type: "input",
-              message: "Who is the employee's manager?"
-          }    
-      ])
-.then(function (answer) {
-          
-    connection.query(
-        "INSERT INTO employee SET ?",
-        {
-            first_name: answer.firstName,
-            last_name: answer.lastName,
-            role_id: answer.role,
-            manager_id: answer.manager
-        },
-        function (err) {
-            if (err) throw err;
-            startMenu();
-        }
-    );
-});
+function addEmployee() {
+    inquirer
+        .prompt([
+            {
+                name: "firstName",
+                type: "input",
+                message: "What is the employee's first name?"
+            },
+            {
+                name: "lastName",
+                type: "input",
+                message: "What is the employee's last name?"
+            },
+            {
+                name: "role",
+                type: "input",
+                message: "What is the employee's role?"
+            },
+            {
+                name: "manager",
+                type: "input",
+                message: "Who is the employee's manager?"
+            }
+        ])
+        .then(function (answer) {
+
+            connection.query(
+                "INSERT INTO employee SET ?",
+                {
+                    first_name: answer.firstName,
+                    last_name: answer.lastName,
+                    role_id: answer.role,
+                    manager_id: answer.manager
+                },
+                function (err) {
+                    if (err) throw err;
+                    startMenu();
+                }
+            );
+        });
 }
 
 function addDepartment() {
@@ -198,7 +198,7 @@ function addDepartment() {
 
 
         .then(function (answer) {
-           
+
             connection.query(
                 "INSERT INTO department SET ?",
                 {
@@ -216,10 +216,10 @@ function addRole() {
     inquirer
         .prompt([
             {
-            name: "name",
-            type: "input",
-            message: "What is the name of the role?"
-        },
+                name: "name",
+                type: "input",
+                message: "What is the name of the role?"
+            },
             {
                 name: "salary",
                 type: "input",
@@ -232,7 +232,7 @@ function addRole() {
             }
         ])
         .then(function (answer) {
-            
+
             connection.query(
                 "INSERT INTO role SET ?",
                 {
@@ -349,12 +349,13 @@ function removeDepartment() {
 
 function updateRole() {
 
-    connection.query("SELECT first_name, last_name FROM employee", function (err, res) {
+    connection.query(`SELECT first_name, last_name FROM employee`, 
+    function (err, res) {
         if (err) throw err;
 
         inquirer
             .prompt([{
-                name: "name",
+                name: "employee",
                 type: "list",
                 message: "Which employee would you like to update?",
                 choices: function () {
@@ -374,16 +375,20 @@ function updateRole() {
 
             .then(function (answer) {
                 console.log(answer);
+
                 connection.query(
-                    "UPDATE employee SET ? WHERE ?",
+                    `UPDATE role, employee 
+                    SET ? WHERE ? AND ?`,
                     [
                         {
-                            role_id: answer.role
+                            title: answer.role
                         },
                         {
-                            first_name, last_name: answer.name
+                            first_name: answer.employee.split(" ")[0]
+                        },
+                        {
+                            last_name: answer.employee.split(" ")[1]
                         }
-
                     ],
                     function (err, res) {
                         if (err) throw err;
