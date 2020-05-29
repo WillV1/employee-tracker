@@ -282,7 +282,7 @@ function removeEmployee() {
 }
 
 function removeRole() {
-    connection.query("SELECT title, salary, department_id FROM role", function (err, res) {
+    connection.query("SELECT title FROM role", function (err, res) {
         if (err) throw err;
         inquirer
             .prompt({
@@ -292,14 +292,14 @@ function removeRole() {
                 choices: function () {
                     var roleArray = [];
                     for (var i = 0; i < res.length; i++) {
-                        roleArray.push(res[i].title + " " + res[i].salary + " " + res[i].department_id);
+                        roleArray.push(res[i].title);
                     }
                     return roleArray;
                 }
             })
 
             .then(function (answer) {
-
+                console.log(answer);
                 connection.query(
                     "DELETE FROM role WHERE ?",
                     {
@@ -351,13 +351,14 @@ function updateRole() {
 
     connection.query("SELECT first_name, last_name FROM employee", function (err, res) {
         if (err) throw err;
+
         inquirer
             .prompt([{
                 name: "name",
                 type: "list",
                 message: "Which employee would you like to update?",
                 choices: function () {
-                    var employeeArray = [];
+                    var employeeArray = []
                     for (var i = 0; i < res.length; i++) {
                         employeeArray.push(res[i].first_name + " " + res[i].last_name);
                     }
