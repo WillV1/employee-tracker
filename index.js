@@ -166,18 +166,18 @@ function addEmployee() {
             },
             {
                 name: "manager",
-                type: "input",
+                type: "number",
                 message: "Who is the employee's manager?"
             }
         ])
         .then(function (answer) {
 
             connection.query(
-                "INSERT INTO employee SET ?",
+                "INSERT INTO employee, role SET ?",
                 {
                     first_name: answer.firstName,
                     last_name: answer.lastName,
-                    role_id: answer.role,
+                    title: answer.role,
                     manager_id: answer.manager
                 },
                 function (err) {
@@ -249,17 +249,19 @@ function addRole() {
 }
 
 function removeEmployee() {
-    connection.query("SELECT first_name, last_name, role_id, manager_id FROM employee", function (err, res) {
+    connection.query("SELECT id, first_name, last_name, role_id, manager_id FROM employee", function (err, res) {
         if (err) throw err;
+        console.table(res);
+
         inquirer
             .prompt({
                 name: "remove",
-                type: "list",
+                type: "number",
                 message: "Which employee would you like to remove?",
                 choices: function () {
                     var employeeArray = [];
                     for (var i = 0; i < res.length; i++) {
-                        employeeArray.push(res[i].first_name + " " + res[i].last_name + " " + res[i].role_id + " " + res[i].manager_id);
+                        employeeArray.push(res[i].id + " " + res[i].first_name + " " + res[i].last_name);
                     }
                     return employeeArray;
                 }
@@ -270,7 +272,7 @@ function removeEmployee() {
                 connection.query(
                     "DELETE FROM employee WHERE ?",
                     {
-                        first_name, last_name, role_id, manager_id: answer.remove
+                        role_id: answer.remove
                     },
                     function (err) {
                         if (err) throw err;
@@ -349,10 +351,9 @@ function removeDepartment() {
 
 function updateRole() {
 
-    connection.query(`SELECT first_name, last_name FROM employee`, 
+    connection.query(`SELECT first_name, last_name, role_id, role.title FROM employee JOIN role ON employee.role_id = role.id`, 
     function (err, res) {
         if (err) throw err;
-
         inquirer
             .prompt([{
                 name: "employee",
@@ -361,27 +362,25 @@ function updateRole() {
                 choices: function () {
                     var employeeArray = []
                     for (var i = 0; i < res.length; i++) {
-                        employeeArray.push(res[i].first_name + " " + res[i].last_name);
+                        employeeArray.push(res[i].first_name + " " + res[i].last_name + " " + res[i].title + " " + res[i].role_id);
                     }
                     return employeeArray;
                 }
             },
             {
                 name: "role",
-                type: "input",
+                type: "number",
                 message: "What is the employee's new role?"
             }
             ])
-
             .then(function (answer) {
                 console.log(answer);
-
                 connection.query(
-                    `UPDATE role, employee 
+                    `UPDATE employee 
                     SET ? WHERE ? AND ?`,
                     [
                         {
-                            title: answer.role
+                            role_id: answer.role
                         },
                         {
                             first_name: answer.employee.split(" ")[0]
