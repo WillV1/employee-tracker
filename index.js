@@ -392,9 +392,9 @@ function removeDepartment() {
 
 function updateRole() {
 
-    connection.query("SELECT employee.id, first_name, last_name FROM employee", function (err, resEmp) {
+    connection.query("SELECT id, first_name, last_name FROM employee", function (err, resEmp) {
 
-    connection.query(`SELECT role.id, title FROM role `, function (err, resRole) {
+    connection.query(`SELECT id, title FROM role `, function (err, resRole) {
         if (err) throw err;
 
         inquirer
@@ -406,7 +406,7 @@ function updateRole() {
                     choices: function () {
                         var employeeArray = []
                         for (var i = 0; i < resEmp.length; i++) {
-                            employeeArray.push({name: resEmp[i].first_name + " " + resEmp[i].last_name, value: resEmp[i].employee.id});
+                            employeeArray.push({name: resEmp[i].first_name + " " + resEmp[i].last_name, value: resEmp[i].id});
                         }
                         return employeeArray;
                     }
@@ -418,7 +418,7 @@ function updateRole() {
                     choices: function () {
                         roleArray = []
                         for (var i = 0; i < resRole.length; i++) {
-                            roleArray.push({ name: resRole[i].title, value: resRole[i].role.id }); // roleres
+                            roleArray.push({ name: resRole[i].title, value: resRole[i].id }); // roleres
                         }
                        
                         return roleArray;
@@ -428,15 +428,8 @@ function updateRole() {
             .then(function (answer) {
                 
                 connection.query(
-                    `UPDATE employee SET ? WHERE ?`,
-                    [
-                        {
-                            id: answer.role
-                        },
-                        {
-                            id: answer.employee
-                        },
-                    ],
+                    `UPDATE employee SET role_id = ? WHERE id = ?`,
+                    [answer.role, answer.employee],
                     function (err, res) {
                         if (err) throw err;
 
