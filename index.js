@@ -144,7 +144,7 @@ function addEmployee() {
 
     let employee = {};
 
-    connection.query(`SELECT employee.id first_name, last_name, role_id, role.title, manager_id FROM employee 
+    connection.query(`SELECT employee.id, first_name, last_name, role_id, role.title, manager_id FROM employee 
     JOIN role ON employee.role_id = role.id`,
 
         function (err, res) {
@@ -183,7 +183,7 @@ function addEmployee() {
                                 managerArray = []
                                 managerArray.push("None")
                                 for (var i = 0; i < res.length; i++) {
-                                    managerArray.push(res[i].first_name + '' + res[i].last_name);
+                                    managerArray.push({name: res[i].first_name + ' ' + res[i].last_name, value: res[i].manager_id});
                                 }
                                 return managerArray;
                             
