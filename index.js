@@ -392,21 +392,21 @@ function removeDepartment() {
 
 function updateRole() {
 
-    connection.query("SELECT id, first_name, last_name FROM role", function (err, resEmp) {
+    connection.query("SELECT employee.id, first_name, last_name FROM employee", function (err, resEmp) {
 
-    connection.query(`SELECT id, title FROM role `, function (err, resRole) {
+    connection.query(`SELECT role.id, title FROM role `, function (err, resRole) {
         if (err) throw err;
 
         inquirer
             .prompt([
                 {
                     name: "employee",
-                    type: "input",
+                    type: "list",
                     message: "Which employee would you like to update?",
                     choices: function () {
                         var employeeArray = []
                         for (var i = 0; i < resEmp.length; i++) {
-                            employeeArray.push({name: resEmp[i].first_name + " " + resEmp[i].last_name, value: resEmp[i].id});
+                            employeeArray.push({name: resEmp[i].first_name + " " + resEmp[i].last_name, value: resEmp[i].employee.id});
                         }
                         return employeeArray;
                     }
@@ -418,7 +418,7 @@ function updateRole() {
                     choices: function () {
                         roleArray = []
                         for (var i = 0; i < resRole.length; i++) {
-                            roleArray.push({ name: resRole[i].title, value: resRole[i].id }); // roleres
+                            roleArray.push({ name: resRole[i].title, value: resRole[i].role.id }); // roleres
                         }
                        
                         return roleArray;
