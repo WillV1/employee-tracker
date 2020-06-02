@@ -2,11 +2,6 @@ const mysql = require("mysql");
 const inquirer = require("inquirer");
 const cTable = require('console.table');
 
-// const addItems = require("./createdata");
-// const removeItems = require("./removedata");
-
-// Is there a way to modulize the add/remove functions?
-
 // create the connection information for the sql database
 let connection = mysql.createConnection({
     host: "localhost",
@@ -398,23 +393,22 @@ function removeDepartment() {
 
 function updateRole() {
     
-    connection.query(`SELECT first_name, last_name, role.id, role.title FROM employee RIGHT JOIN role ON employee.role_id = role.id `,
-        function (err, res) {
+    connection.query(`SELECT role.id, role.title FROM role `, function (err, res) {
             if (err) throw err;
 
             inquirer
                 .prompt([
                     {
                     name: "employee",
-                    type: "list",
-                    message: "Which employee would you like to update?",
-                    choices: function () {
-                        var employeeArray = []
-                        for (var i = 0; i < res.length; i++) {
-                            employeeArray.push(res[i].first_name + " " + res[i].last_name);
-                        }
-                        return employeeArray;
-                    }
+                    type: "input",
+                    message: "Which employee would you like to update?"
+                    // choices: function () {
+                    //     var employeeArray = []
+                    //     for (var i = 0; i < res.length; i++) {
+                    //         employeeArray.push(res[i].first_name + " " + res[i].last_name);
+                    //     }
+                    //     return employeeArray;
+                    // }
                 },
                 {
                     name: "role",
@@ -423,7 +417,7 @@ function updateRole() {
                     choices: function () {
                         roleArray = []
                         for (var i = 0; i < res.length; i++) {
-                            roleArray.push({name: res[i].title, value: res[i].role_id});
+                            roleArray.push({name: res[i].title, value: res[i].id});
                         }
                         console.log(roleArray)
                         return roleArray;
@@ -433,8 +427,7 @@ function updateRole() {
                 .then(function (answer) {
                     console.log(answer);
                     connection.query(
-                        `UPDATE role, employee
-                    SET ? WHERE ? AND ?`,
+                        `UPDATE employee SET ? WHERE ? AND ?`,
                         [
                             {
                                 role_id: answer.role
